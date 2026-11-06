@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit settings for this fork of merbanan/rtl_433: reviews decoder PRs in this fork, few and relevant comments.
+# PRs to the upstream are opened at merbanan/rtl_433 and are not reviewed by CodeRabbit.
+# Free for public repositories. Docs: https://docs.coderabbit.ai/reference/configuration
+language: en-US
+
+reviews:
+  # quiet = only important findings, chill = balanced, assertive = many (nitpicky)
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  collapse_walkthrough: true
+  changed_files_summary: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  related_prs: false
+  suggested_labels: false
+  suggested_reviewers: false
+  poem: false
+  in_progress_fortune: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    # documentation-only PRs need no automatic review
+    ignore_title_keywords:
+      - "docs:"
+      - "docs("
+
+  # Only the code: no Markdown, images or recordings
+  path_filters:
+    - "!**/*.md"
+    - "!**/*.png"
+    - "!**/*.svg"
+    - "!**/*.cu8"
+    - "!**/*.cs16"
+
+  path_instructions:
+    - path: "src/devices/*.c"
+      instructions: >-
+        rtl_433 device decoder in C, following the upstream style of merbanan/rtl_433. Check: every bitbuffer access is
+        guarded by row and bit-length checks (no out-of-bounds reads), preamble search and offsets stay inside the row,
+        integrity check (CRC, checksum or parity) before any output, correct return codes (DECODE_ABORT_EARLY,
+        DECODE_ABORT_LENGTH, DECODE_FAIL_MIC, DECODE_FAIL_SANITY) and sanity checks on decoded values against false
+        positives, data_make keys and order following the rtl_433 conventions (model, id, channel, battery_ok,
+        temperature_C, humidity, ..., mic), model names as "Vendor-Model", output_fields matching all data_make keys, and
+        plausible r_device timings (short_width, long_width, reset_limit, gap_limit, tolerance) for the modulation.
+    - path: "include/rtl_433_devices.h"
+      instructions: "New decoders are appended to the device list; existing entries keep their position (protocol numbers must not change)."
+    - path: "src/CMakeLists.txt"
+      instructions: "Every new decoder source in src/devices/ must be listed here."
+    - path: "conf/*.conf"
+      instructions: "Flex decoder configuration: check modulation, timings and the getter/match syntax of rtl_433 flex decoders."
+
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+
+chat:
+  auto_reply: true
